@@ -1,0 +1,19 @@
+version = 1
+disable_existing_loggers = false
+
+[root]
+    level = 'DEBUG'
+    handlers = ['console']
+
+[handlers]
+
+    [handlers.console]
+        class = "logging.Stremhandler"
+        level = "INFO"
+
+[formatters]
+
+    [formatters.simple]
+        format = "[%(asctime)s] [%(name)s] [%(levelname)s] > %(message)s"
+        datefmt = "%Y-$m-%d %H:%M:%S"
+
