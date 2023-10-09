@@ -73,8 +73,10 @@ class BudgetPeriod(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     user: Mapped["User"] = relationship(back_populates='budget_periods')
-    income: Mapped["PeriodIncome"] = relationship(back_populates='budget_period', )
+    income: Mapped[List["PeriodIncome"]] = relationship(back_populates='budget_period', )
     expense: Mapped["PeriodExpense"] = relationship(back_populates='budget_period', )
+
+    total: Mapped[decimal.Decimal] = mapped_column(Numeric(precision=38, scale=4), default=0)
 
     def __repr__(self):
         return (f"id: {self.id!r}, name: {self.name!r}, start_date: {self.start_date!r}, "
@@ -121,52 +123,6 @@ class DailyExpense:
     pass
 
 
-# def start_mappers():
-#     mapper_registry.map_imperatively(
-#         User, users,
-#         properties={'budget_periods': relationship(
-#             BudgetPeriod,
-#             uselist=True)
-#         }
-#     )
-#     #
-#     mapper_registry.map_imperatively(
-#         BudgetPeriod, budget_periods,
-#     )
-
-    # mapper_registry.map_imperatively(PeriodIncome, period_incomes)
-    # mapper_registry.map_imperatively(PeriodExpense, period_epenses)
-
-
-# if __name__ == "__main__":
-#     start_mappers()
-#     from sqlalchemy.orm import Session
-#     from sqlalchemy import create_engine
-#
-#     engine = create_engine("sqlite://", echo=True)
-#     metadata.create_all(engine)
-#     with Session(engine) as session:
-#         UserType = namedtuple('User', ['id', 'name'])
-#         buf = UserType(id='1', name='first')._asdict()
-#         orm_dict = {}
-#         print(inspect(User))
-#         for col in list(inspect(User).columns):
-#             col_name = col.__dict__['key']
-#             orm_dict[col_name] = buf.get(col_name)
-#
-#         print(orm_dict)
-#         session.add(User(**orm_dict))
-#         session.commit()
-#         s = select(User)
-#         print('-' * 15)
-#         for u in session.scalars(s):
-#             # col in  (inspect(u).columns):
-#             print('@@@ - ', type(u))
-#             print('@@@ - ', list(inspect(u)))
-#
-#         # session.add(User(**orm_dict))
-#         # session.commit()
-
 
 if __name__ == "__main__":
 
@@ -180,20 +136,42 @@ if __name__ == "__main__":
     with Session(engine) as session:
         first = User(id=1, name='first_user')
         # second = User(id=2, name='second_user')
+        first_period = BudgetPeriod(
+            name='first_per',
+            start_date=datetime.date.today() - datetime.timedelta(days=10),
+            end_date=datetime.date.today(),
+            user_id=1
+        )
 
-        session.add_all([first])
+        first_inc = PeriodIncome(
+            category='rent',
+            value=Decimal(5039.99),
+            budget_period_id=1
+        )
+        second_inc = PeriodIncome(
+            category='home',
+            value=Decimal(100.55),
+            budget_period_id=1
+        )
+        session.add_all([first, first_period, first_inc, second_inc])
         session.commit()
 
         stm1 = select(User)
 
         stm2 = select(BudgetPeriod)
 
-        print('______')
         for u in session.scalars(stm1):
             print('----')
             print(u)
 
         for b in session.scalars(stm2):
+            print('2----')
             print(b)
+            print(b.income)
+            sum = 0
+            for inc in b.income:
+                sum += inc.value
+
+            print(sum)
 
 
