@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import FastAPI, status
 from fastapi import Form
+import flask
 
 import schemas
 from lib import get_logger

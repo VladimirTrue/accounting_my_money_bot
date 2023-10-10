@@ -3,10 +3,10 @@ from typing import List
 from sqlalchemy.exc import OperationalError
 
 from lib.exceptions import DBCannotBeConnectedError
-from modules.orm import Base
+from modules.orm import Base, User
 
 
-class AbstractRepository(metaclass=abc.ABC):
+class AbstractRepository(metaclass=abc.ABCMeta):
 
     def __init__(self):
         ...
@@ -66,17 +66,17 @@ class UserSqlAlchemyRepository(AbstractRepository):
                 message="Can't connect to Database"
             )
 
-    def _add(self, obj: Base) -> None:
-        pass
+    def _add(self, user: User) -> None:
+        self.session.add(user)
 
-    def _get(self, row_id: int) -> Base:
-        pass
+    def _get(self, user_id: int) -> User:
+        return self.session.query(User).filter_by(id=user_id).one()
 
     def _get_all(self) -> List:
-        pass
+        return self.session.query(User)
 
-    def _delete(self, row_id: int) -> None:
-        pass
+    def _delete(self, user_id: int) -> User:
+        return self.session.query(User).filter_by(id=user_id).delete()
 
     def _update(self, obj: Base) -> None:
         pass

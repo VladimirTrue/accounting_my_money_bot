@@ -130,7 +130,6 @@ if __name__ == "__main__":
     from sqlalchemy import create_engine
     engine = create_engine("sqlite://", echo=True)
 
-    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     with Session(engine) as session:
@@ -157,6 +156,7 @@ if __name__ == "__main__":
         session.commit()
 
         stm1 = select(User)
+        session.query()
 
         stm2 = select(BudgetPeriod)
 
